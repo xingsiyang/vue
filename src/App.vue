@@ -1,5 +1,8 @@
 <template>
   <div id="app">
+    <div id="topInfo">
+      COVID-19 Dashboard by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)
+    </div>
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
@@ -16,5 +19,10 @@
   text-align: center;
   color: #2c3e50; */
   height: 100%;
+}
+
+#topInfo {
+  text-align: center;
+  height: 50px;
 }
 </style>
