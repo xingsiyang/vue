@@ -6,7 +6,7 @@
           Global Cases<br>9999
         </el-header>
         <el-main id="leftmain">
-          <el-table :data="tableData" style="width:auto">
+          <el-table :data="tableData" header-cell-style="background-color: #e4f5ef;" cell-style="background-color: #e4f5ef;">
             <el-table-column
               prop="date"
               label="Cases by Province/State/Dependency"
@@ -31,30 +31,30 @@
     </el-col>
     <el-col :span="8">
       <el-container id="rightcontainer">
-        <el-main id="rightmain">
-          <el-row :gutter="10">
-            <el-col :span="12">
-              <el-table :data="tableData" style="width: 100%">
-                <el-table-column
-                  prop="date"
-                  label="Cases by Province/State/Dependency"
-                  width="180">
-                </el-table-column>
-              </el-table>
-            </el-col>
-            <el-col :span="12">
-              <el-table :data="tableData" style="width: 100%">
-                <el-table-column
-                  prop="date"
-                  label="Cases by Province/State/Dependency"
-                  width="180">
-                </el-table-column>
-              </el-table>
-            </el-col>
-          </el-row>
-        </el-main>
-        <el-footer id="rightfooter">
-          <div id="lines" style="width: 100%; height: 100%;"></div>
+        <el-container>
+          <el-aside id="rightaside" width="47%">
+            <el-table :data="tableData" header-cell-style="background-color: #e4f5ef;" cell-style="background-color: #e4f5ef;">
+              <el-table-column
+                prop="date"
+                label="Cases by Province/State/Dependency"
+                width="180"
+                >
+              </el-table-column>
+            </el-table>
+          </el-aside>
+          <el-main id="rightmain">
+            <el-table :data="tableData" header-cell-style="background-color: #e4f5ef;" cell-style="background-color: #e4f5ef;">
+              <el-table-column
+                prop="date"
+                label="Cases by Province/State/Dependency"
+                width="180"
+                >
+              </el-table-column>
+            </el-table>
+          </el-main>
+        </el-container>
+        <el-footer id="rightfooter" height=30%>
+          <div id="lines" style="width: 100%; height: 24vh;"></div>
         </el-footer>
       </el-container>
     </el-col>
@@ -72,6 +72,14 @@ export default {
       tableData: [
         {
           date: '2016-05-02',
+        }, {
+          date: '2016-05-03',
+        }, {
+          date: '2016-05-03',
+        }, {
+          date: '2016-05-03',
+        }, {
+          date: '2016-05-03',
         }, {
           date: '2016-05-03',
         }
@@ -92,26 +100,26 @@ export default {
           {
             name: '销量',
             type: 'line',
-            data: [5, 20, 36, 10, 10, 20]
+            data: ['1','2','3','4','5','6']
           },
           {
             name: 'aa',
             type: 'line',
-            data: [5, 20, 36, 10, 15, 20]
+            data: ['1','3','3','5','5','6']
           }
       ]
       }
     }
   },
   methods: {
-    drawLine: function () {
+    drawLine: function (option) {
       let myChart = echarts.init(document.getElementById('lines'));
       // 使用指定的配置项和数据显示图表。
-      myChart.setOption(this.option);
+      myChart.setOption(option);
     }
   },
   mounted(){
-    this.drawLine();
+    this.drawLine(this.option);
   },
   components: {
     Mymap
@@ -131,6 +139,12 @@ export default {
 .el-container {
   height: 100%;
 } 
+
+.el-table {
+  background-color: #e4f5ef!important;
+  width: 100%!important;
+  height: 100%!important;
+}
 
 #leftheader {
   background-color: #e4f5ef;
@@ -168,14 +182,22 @@ export default {
 
 #rightmain{
   background-color: #e4f5ef;
-  border-radius: 10px
+  border-radius: 10px;
+  padding: 3%;
+}
+
+#rightaside{
+  background-color: #e4f5ef;
+  border-radius: 10px;
+  padding: 3%;
+  margin-right: 3%;
 }
 
 #rightfooter {
   background-color: #e4f5ef;
   border-radius: 10px;
   margin-top: 10px;
-  height: 30%!important;
   padding-top: 5%;
+  text-align: center;
 }
 </style>
