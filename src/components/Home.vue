@@ -117,7 +117,7 @@ export default {
 }
 
 .el-container {
-  height: 101%;
+  height: 100%;
 } 
 
 #leftcontainer {
