@@ -47,8 +47,8 @@ export default {
         let myGeo = new window.BMap.Geocoder();
         let currentPoint = new window.BMap.Point(e.point.lng, e.point.lat);
         myGeo.getLocation(currentPoint, function(info){
-            alert(info.addressComponents.province)
-            getdata();
+            alert(info.addressComponents.province + info.addressComponents.city)
+            // getdata();
         })
       });
     } 
@@ -62,8 +62,7 @@ export default {
 
 <style>
 #map { 
-  height: 80%;
-  width: 80%;
-  margin: 50px 50px;
+  height: 100%;
+  width: 100%;
 }
 </style>
