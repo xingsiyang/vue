@@ -1,15 +1,16 @@
 <template>
-  <div id="app">
-    <el-button type="primary">主要按钮</el-button>
-    <div id="topInfo">
+  <el-container id="app">
+    <el-header id="topInfo" height=50px style="padding: 10px">
       COVID-19 Dashboard by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)
-    </div>
+    </el-header>
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
       <router-link to="/about">About</router-link>
     </div> -->
-    <router-view/>
-  </div>
+    <el-main style="padding: 10px">
+      <router-view/>
+    </el-main>
+  </el-container>
 </template>
 
 <style>
@@ -24,6 +25,9 @@
 
 #topInfo {
   text-align: center;
-  height: 50px;
+}
+
+.el-main {
+  height: 100%
 }
 </style>

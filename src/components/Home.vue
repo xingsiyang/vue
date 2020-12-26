@@ -1,71 +1,116 @@
-<template> 
-  <div id="container">
-    <div id="map"></div> 
-  </div>
+<template>
+  <el-row :gutter="20">
+    <el-col :span="5">
+      <el-container id="leftcontainer">
+        <el-header>
+          Global Cases<br>9999
+        </el-header>
+        <el-main style="max-height: 500px">
+          <el-table :data="tableData" style="width:auto">
+            <el-table-column
+              prop="date"
+              label="Cases by Province/State/Dependency"
+              width="180">
+            </el-table-column>
+        </el-table>
+        </el-main>
+        <el-footer>
+          12/26/2020 4:21 下午
+        </el-footer>
+      </el-container>
+    </el-col>
+    <el-col :span="14">
+      <el-container id="midcontainer">
+        <el-main>
+          <Mymap></Mymap>
+        </el-main>
+        <el-footer height=50px>
+          <p>hahahahahhahaha</p>
+        </el-footer>
+      </el-container>
+    </el-col>
+    <el-col :span="5">
+      <el-container id="rightcontainer">
+        <el-main style="max-height: 500px">
+          <el-table :data="tableData" style="width:auto">
+            <el-table-column
+              prop="date"
+              label="Cases by Province/State/Dependency"
+              width="180">
+            </el-table-column>
+        </el-table>
+        </el-main>
+        <el-footer>
+          这是一个图
+        </el-footer>
+      </el-container>
+    </el-col>
+  </el-row>
 </template>
 
 <script>
-
-function getdata()
-{
-  var xmlhttp;
-  if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp=new XMLHttpRequest();
-  }
-  else
-  {// code for IE6, IE5
-    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  xmlhttp.onreadystatechange=function()
-  {
-    if (xmlhttp.readyState==4 && xmlhttp.status==200)
-    {
-      alert(xmlhttp.responseText)
-      // update(JSON.parse(xmlhttp.responseText));
-    }
-  }
-  xmlhttp.open("GET","http://49.232.221.85/affair/salary?action=list_salary",true);
-  xmlhttp.send();
-}
+import Mymap from './Map'
 
 export default {
-  name: 'Home', 
-  methods: {      
-    drawMap: function () { 
-      // 创建地图实例  =
-      var map = new window.BMap.Map("map");
-      // 创建点坐标  
-      var point = new window.BMap.Point(116.404, 39.915);
-      // 初始化地图，设置中心点坐标和地图级别  
-      map.centerAndZoom(point, 5);
-      // 允许鼠标滚轮缩放
-      map.enableScrollWheelZoom(true);
-      // map.setMapStyleV2({     
-      //   styleId: '9ef31e5c6b24670209565799a202515b'
-      // });
-
-      // 点击事件
-      map.addEventListener('click', function (e) {
-        let myGeo = new window.BMap.Geocoder();
-        let currentPoint = new window.BMap.Point(e.point.lng, e.point.lat);
-        myGeo.getLocation(currentPoint, function(info){
-            alert(info.addressComponents.province)
-            getdata();
-        })
-      });
-    } 
-  }, 
-  mounted(){ 
-    //调用上面的函数
-    this.drawMap() 
-  } 
-} 
-</script> 
+  name: 'Home',
+  data() {
+    return{
+      tableData: [{
+            date: '2016-05-02',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-04',
+          }, {
+            date: '2016-05-01',
+          }, {
+            date: '2016-05-03',
+          }]
+    }
+  },
+  components: {
+    Mymap
+  }
+}
+</script>
 
 <style>
-#map { 
-  height: 80vh;
-  width: 40vw;
-}   
+.el-row {
+  height: 100%;
+}
+
+.el-col {
+  height: 100%;
+}
+
+.el-container {
+  height: 100%;
+} 
+
+#leftcontainer {
+  background-color: white;
+}
+
+#midcontainer {
+  background-color: white;
+  text-align: center;
+}
+
+#rightcontainer {
+  background-color: white;
+}
 </style>
