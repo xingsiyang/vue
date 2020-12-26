@@ -1,5 +1,6 @@
 <template>
   <div id="app">
+    <el-button type="primary">主要按钮</el-button>
     <div id="topInfo">
       COVID-19 Dashboard by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)
     </div>

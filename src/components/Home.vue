@@ -1,5 +1,7 @@
 <template> 
-	<div id="container"></div> 
+  <div id="container">
+    <div id="map"></div> 
+  </div>
 </template>
 
 <script>
@@ -29,13 +31,10 @@ function getdata()
 
 export default {
   name: 'Home', 
-  data: {
-    message: "aa"
-  },
   methods: {      
     drawMap: function () { 
       // 创建地图实例  =
-      var map = new window.BMap.Map("container");
+      var map = new window.BMap.Map("map");
       // 创建点坐标  
       var point = new window.BMap.Point(116.404, 39.915);
       // 初始化地图，设置中心点坐标和地图级别  
@@ -65,7 +64,7 @@ export default {
 </script> 
 
 <style>
-#container { 
+#map { 
   height: 80vh;
   width: 40vw;
 }   
