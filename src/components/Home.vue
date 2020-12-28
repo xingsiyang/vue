@@ -6,23 +6,21 @@
           Global Cases<br>9999
         </el-header>
         <el-main id="leftmain">
-          <el-table :data="tableData" header-cell-style="background-color: #e4f5ef;" cell-style="background-color: #e4f5ef;">
-            <el-table-column
-              prop="date"
-              label="Cases by Province/State/Dependency"
-              width="180">
-            </el-table-column>
-        </el-table>
+          <el-form>
+            <el-form-item v-for="site in tableData">{{ site.date }}</el-form-item>
+          </el-form>
         </el-main>
         <el-footer id="leftfooter">
-          12/26/2020 4:21 下午
+          上次刷新时间
+          <br>
+          {{ new Date().toLocaleString( ) }}
         </el-footer>
       </el-container>
     </el-col>
     <el-col :span="11">
       <el-container id="midcontainer">
         <el-main id="midmain">
-          <Mymap></Mymap>
+          <Mymap @child='update'></Mymap>
         </el-main>
         <el-footer height=10% id="midfooter">
           <p>hahahahahhahaha</p>
@@ -31,30 +29,20 @@
     </el-col>
     <el-col :span="8">
       <el-container id="rightcontainer">
-        <el-container>
+        <el-container id="righttop">
           <el-aside id="rightaside" width="47%">
-            <el-table :data="tableData" header-cell-style="background-color: #e4f5ef;" cell-style="background-color: #e4f5ef;">
-              <el-table-column
-                prop="date"
-                label="Cases by Province/State/Dependency"
-                width="180"
-                >
-              </el-table-column>
-            </el-table>
+            <el-form>
+              <el-form-item v-for="site in tableData">{{ site.date }}</el-form-item>
+            </el-form>
           </el-aside>
           <el-main id="rightmain">
-            <el-table :data="tableData" header-cell-style="background-color: #e4f5ef;" cell-style="background-color: #e4f5ef;">
-              <el-table-column
-                prop="date"
-                label="Cases by Province/State/Dependency"
-                width="180"
-                >
-              </el-table-column>
-            </el-table>
+            <el-form>
+              <el-form-item v-for="site in tableData">{{ site.date }}</el-form-item>
+            </el-form>
           </el-main>
         </el-container>
         <el-footer id="rightfooter" height=30%>
-          <div id="lines" style="width: 100%; height: 24vh;"></div>
+          <div id="lines" style="width: 100%; height: 100%;"></div>
         </el-footer>
       </el-container>
     </el-col>
@@ -63,27 +51,40 @@
 
 <script>
 import Mymap from './Map'
-let echarts = require('echarts');
+
+function getdata(context,url)
+{
+  var xmlhttp;
+  if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+    xmlhttp=new XMLHttpRequest();
+  }
+  else
+  {// code for IE6, IE5
+    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.onreadystatechange=function()
+  {
+    if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+      if (url == "api/all")
+      {
+        context.init(JSON.parse(xmlhttp.responseText));
+      }
+      // return xmlhttp.responseText;
+      // alert(xmlhttp.responseText)
+      // update(JSON.parse(xmlhttp.responseText));
+    }
+  }
+  xmlhttp.open("GET","http://47.95.198.55:3001/" + url,true);
+  xmlhttp.send();
+}
 
 export default {
   name: 'Home',
   data() {
     return{
-      tableData: [
-        {
-          date: '2016-05-02',
-        }, {
-          date: '2016-05-03',
-        }, {
-          date: '2016-05-03',
-        }, {
-          date: '2016-05-03',
-        }, {
-          date: '2016-05-03',
-        }, {
-          date: '2016-05-03',
-        }
-      ],
+      tableData: [],
       option: {
         title: {
           text: 'ECharts 入门示例'
@@ -112,14 +113,30 @@ export default {
     }
   },
   methods: {
+    init: function (data) {
+      let newTable = [];
+      for (let i = 0; i < data.length; i++)
+      {
+        newTable.push({'date': data[i].name})
+      }
+      for (let i = 0; i < data.length; i++)
+      {
+        newTable.push({'date': data[i].name})
+      }
+      this.tableData = newTable;
+    },
     drawLine: function (option) {
       let myChart = echarts.init(document.getElementById('lines'));
       // 使用指定的配置项和数据显示图表。
       myChart.setOption(option);
+    },
+    update: function (data) {
+      alert(data)
     }
   },
   mounted(){
     this.drawLine(this.option);
+    getdata(this,'api/all');
   },
   components: {
     Mymap
@@ -156,14 +173,16 @@ export default {
   background-color: #e4f5ef;
   border-radius: 10px;
   height: 75%!important;
-  margin-top: 10px;
+  margin-top: 3%;
 }
 
 #leftfooter {
   background-color: #e4f5ef;
   border-radius: 10px;
   height: 10%!important;
-  margin-top: 10px;
+  margin-top: 3%;
+  text-align: center;
+  padding: 3%;
 }
 
 #midmain {
@@ -174,10 +193,14 @@ export default {
 }
 
 #midfooter{
-  margin-top: 10px;
+  margin-top: 1.2%;
   background-color: #e4f5ef;
   border-radius: 10px;
   text-align: center;
+}
+
+#righttop {
+  height: 70%;
 }
 
 #rightmain{
@@ -196,7 +219,7 @@ export default {
 #rightfooter {
   background-color: #e4f5ef;
   border-radius: 10px;
-  margin-top: 10px;
+  margin-top: 2%;
   padding-top: 5%;
   text-align: center;
 }

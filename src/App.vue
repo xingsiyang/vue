@@ -1,7 +1,7 @@
 <template>
   <el-container id="app">
     <el-header id="topInfo" height=50px style="padding: 10px">
-      COVID-19 Dashboard by the Center for Systems Science and Engineering (CSSE) at Johns Hopkins University (JHU)
+      <p>ZQJ-俊</p>
     </el-header>
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
@@ -32,9 +32,14 @@
   margin-top: 10px;
   margin-left: 8px;
   margin-right: 8px;
+  padding: 0%!important;
 }
 
 .el-main {
   height: 100%
+}
+
+p {
+  text-align: center;
 }
 </style>
