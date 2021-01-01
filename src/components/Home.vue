@@ -2,13 +2,20 @@
   <el-row :gutter="15">
     <el-col :span="5">
       <el-container id="leftcontainer">
-        <el-header id="leftheader">
-          Global Cases<br>9999
+        <el-header id="leftheader" style="text-align: center; padding-top: 5%;">
+          全美总感染人数<br><br>{{ totalconfirmed }}
         </el-header>
         <el-main id="leftmain">
-          <el-form>
-            <el-form-item v-for="site in tableData">{{ site.date }}</el-form-item>
-          </el-form>
+          <el-container>
+            <el-header height="10%" style="text-align: center;">
+              <div style="text-align: center; height: 100%; padding:5% 0px;">各州感染数</div>
+            </el-header>
+            <el-main style="padding-top: 0px;">
+              <el-form>
+                <el-form-item v-for="site in leftmid">{{ site.province }} : {{ site.case }} Cases</el-form-item>
+              </el-form>
+            </el-main>
+          </el-container>
         </el-main>
         <el-footer id="leftfooter">
           上次刷新时间
@@ -20,7 +27,7 @@
     <el-col :span="11">
       <el-container id="midcontainer">
         <el-main id="midmain">
-          <Mymap @child='update'></Mymap>
+          <Mymap @child='select'></Mymap>
         </el-main>
         <el-footer height=10% id="midfooter">
           <p>hahahahahhahaha</p>
@@ -31,17 +38,37 @@
       <el-container id="rightcontainer">
         <el-container id="righttop">
           <el-aside id="rightaside" width="47%">
-            <el-form>
-              <el-form-item v-for="site in tableData">{{ site.date }}</el-form-item>
-            </el-form>
+            <el-container>
+              <el-header height="25%" style="text-align: center;">
+                <div style="text-align: center; height: 100%; padding:5% 0px;">{{ currentcity }} {{ currentprovince }} <br><br> 对十天内确诊人数的预测：</div>
+              </el-header>
+              <el-main style="padding-top: 0px;">
+                <el-form>
+                  <el-form-item v-for="site in rightl">{{ site.case }}</el-form-item>
+                </el-form>
+              </el-main>
+            </el-container>
           </el-aside>
           <el-main id="rightmain">
-            <el-form>
-              <el-form-item v-for="site in tableData">{{ site.date }}</el-form-item>
-            </el-form>
+            <el-container>
+              <el-header height="10%" style="text-align: center;">
+                <div style="text-align: center; height: 100%; padding:5% 0px;">{{ currentprovince }}</div>
+              </el-header>
+              <el-main style="padding-top: 0px;">
+                <el-form>
+                  <el-form-item v-for="site in rightr" style="margin-bottom: 5%;">{{ site.city }} : {{ site.case }}</el-form-item>
+                </el-form>
+              </el-main>
+              <el-footer height="5%" style="margin-top:3%;">
+                <el-radio-group v-model="radio">
+                  <el-radio :label="'confirmed'">确诊数</el-radio>
+                  <el-radio :label="'death'">死亡数</el-radio>
+                </el-radio-group>
+              </el-footer>
+            </el-container>
           </el-main>
         </el-container>
-        <el-footer id="rightfooter" height=30%>
+        <el-footer id="rightfooter" height=28%>
           <div id="lines" style="width: 100%; height: 100%;"></div>
         </el-footer>
       </el-container>
@@ -52,7 +79,7 @@
 <script>
 import Mymap from './Map'
 
-function getdata(context,url)
+function getdata(context,url,state)
 {
   var xmlhttp;
   if (window.XMLHttpRequest)
@@ -67,16 +94,25 @@ function getdata(context,url)
   {
     if (xmlhttp.readyState==4 && xmlhttp.status==200)
     {
-      if (url == "api/all")
+      if (state == 0)
       {
-        context.init(JSON.parse(xmlhttp.responseText));
+        context.updateleft(JSON.parse(xmlhttp.responseText));
       }
-      // return xmlhttp.responseText;
-      // alert(xmlhttp.responseText)
-      // update(JSON.parse(xmlhttp.responseText));
+      else if (state == 1)
+      {
+        context.updaterightr(JSON.parse(xmlhttp.responseText));
+      }
+      else if (state == 2)
+      {
+        context.updaterightbottom(JSON.parse(xmlhttp.responseText)); 
+      }
+      else if (state == 3)
+      {
+        context.updaterightl(JSON.parse(xmlhttp.responseText)); 
+      }
     }
   }
-  xmlhttp.open("GET","http://47.95.198.55:3001/" + url,true);
+  xmlhttp.open("GET","http://47.95.198.55:8000/" + url,true);
   xmlhttp.send();
 }
 
@@ -84,59 +120,114 @@ export default {
   name: 'Home',
   data() {
     return{
-      tableData: [],
+      radio: "confirmed",
+      totalconfirmed: 0,
+      currentprovince: null,
+      currentcity: null,
+      leftmid: [],
+      rightr: [],
+      rightl: [],
       option: {
         title: {
-          text: 'ECharts 入门示例'
+          text: ''
         },
         tooltip: {},
         legend:{
-            data:['销量','aa']
+            data:['死亡数','确诊数']
         },
         xAxis: {
-          data: ["衬衫","羊毛衫","雪纺衫","裤子","高跟鞋","袜子"]
+          data: []
         },
         yAxis: {},
         series: [
           {
-            name: '销量',
+            name: '死亡数',
             type: 'line',
-            data: ['1','2','3','4','5','6']
+            data: []
           },
           {
-            name: 'aa',
+            name: '确诊数',
             type: 'line',
-            data: ['1','3','3','5','5','6']
+            data: []
           }
       ]
       }
     }
   },
   methods: {
-    init: function (data) {
-      let newTable = [];
-      for (let i = 0; i < data.length; i++)
+    updateleft: function (res) {
+      let newleftmid = [];
+      let count = 0;
+      for (let i = 0; i < res.data.length; i++)
       {
-        newTable.push({'date': data[i].name})
+        let item = [];
+        item['province'] = res.data[i].province;
+        item['case'] = res.data[i].confirmed;
+        count += res.data[i].confirmed;
+        newleftmid.push(item)
       }
-      for (let i = 0; i < data.length; i++)
+      this.leftmid = newleftmid;
+      this.totalconfirmed = count
+    },
+    updaterightr: function (res) {
+      let newrightr = [];
+      for (let i = 0; i < res.data.length; i++)
       {
-        newTable.push({'date': data[i].name})
+        let item = [];
+        item['city'] = res.data[i].city;
+        if (this.radio == 'confirmed')
+        {
+          item['case'] = res.data[i].confirmed;
+        }
+        else if (this.radio == 'death')
+        {
+          item['case'] = res.data[i].death;
+        }
+        newrightr.push(item)
       }
-      this.tableData = newTable;
+      this.rightr = newrightr;
+    },
+    updaterightl:function (res) {
+      let newrightl = [];
+      for (let i = 0; i < res.predicted_value.length; i++)
+      {
+        let item = [];
+        item['case'] = res.predicted_value[i];
+        newrightl.push(item)
+      }
+      this.rightl= newrightl;
+    },
+    updaterightbottom: function (res) {
+      this.option.title.text = this.currentcity;
+      let x = [];
+      let dy = [];
+      let cy = [];
+      for (let i = 0; i < res.result[0].Y.length; i++)
+      {
+        x.push(i);
+        dy.push(res.result[0].Y[i])
+        cy.push(res.result[1].Y[i])
+      }
+      this.option.xAxis.data = x;
+      this.option.series[0].data = dy;
+      this.option.series[1].data = cy;
+      this.drawLine(this.option);
     },
     drawLine: function (option) {
       let myChart = echarts.init(document.getElementById('lines'));
       // 使用指定的配置项和数据显示图表。
       myChart.setOption(option);
     },
-    update: function (data) {
-      alert(data)
+    select: function (data) {
+      this.currentprovince = data.province;
+      this.currentcity = data.city;
+      getdata(this,'listcity?type=' + this.radio + '&state=' + this.currentprovince,1);
+      getdata(this,'quary?&c=' + this.currentcity + '&p=' + this.currentprovince,2); 
+      getdata(this,'prodict?&p=' + this.currentprovince + '&c=' + this.currentcity + '&type=confirmed&len=10',3);   
     }
   },
   mounted(){
-    this.drawLine(this.option);
-    getdata(this,'api/all');
+    getdata(this,'state',0);
   },
   components: {
     Mymap
@@ -173,6 +264,7 @@ export default {
   background-color: #e4f5ef;
   border-radius: 10px;
   height: 75%!important;
+  padding: 0px;
   margin-top: 3%;
 }
 

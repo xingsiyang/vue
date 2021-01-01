@@ -1,5 +1,5 @@
 <template>
-    <div id="map">aaaaa</div> 
+    <div id="map">这是一个地图</div> 
 </template>
 
 <script>
@@ -25,10 +25,10 @@ export default {
         let myGeo = new window.BMap.Geocoder();
         let currentPoint = new window.BMap.Point(e.point.lng, e.point.lat);
         myGeo.getLocation(currentPoint, function(info){
-            // alert(info.addressComponents.province + info.addressComponents.city)
-            alert(info.point.lng + ',' + info.point.lat)
-            context.$emit('child','我是数据')
-            // alert(getdata());
+          let msg = [];
+          msg['city'] = info.addressComponents.city;
+          msg['province'] = info.addressComponents.province;
+          context.$emit('child',msg)
         })
       });
     } 
