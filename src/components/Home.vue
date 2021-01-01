@@ -30,7 +30,8 @@
           <Mymap @child='select'></Mymap>
         </el-main>
         <el-footer height=10% id="midfooter">
-          <p>hahahahahhahaha</p>
+          <p v-if="currentcity==''">请从地图上选择一个美国城市</p>
+          <p v-else-if="startday==''">暂时只支持美国的城市</p>
         </el-footer>
       </el-container>
     </el-col>
@@ -42,9 +43,9 @@
               <el-header height="25%" style="text-align: center;">
                 <div style="text-align: center; height: 100%; padding:5% 0px;">{{ currentcity }} {{ currentprovince }} <br><br> 对十天内确诊人数的预测：</div>
               </el-header>
-              <el-main style="padding-top: 0px;">
+              <el-main style="padding-top: 0px;" v-if="endday!=''">
                 <el-form>
-                  <el-form-item v-for="site in rightl">{{ site.case }}</el-form-item>
+                  <el-form-item v-for="site in rightl">{{ site.date }} - {{ site.case }}</el-form-item>
                 </el-form>
               </el-main>
             </el-container>
@@ -60,7 +61,7 @@
                 </el-form>
               </el-main>
               <el-footer height="5%" style="margin-top:3%;">
-                <el-radio-group v-model="radio">
+                <el-radio-group v-model="radio" @change="changestate">
                   <el-radio :label="'confirmed'">确诊数</el-radio>
                   <el-radio :label="'death'">死亡数</el-radio>
                 </el-radio-group>
@@ -116,14 +117,45 @@ function getdata(context,url,state)
   xmlhttp.send();
 }
 
+function addDate (startday, length)
+{
+  let dateList = [];
+  let date = new Date(startday);
+  for (let i = 0; i < length; i++)
+  {
+    dateList.push(date.toLocaleDateString())
+    date = date.setDate(date.getDate()+1);
+    date=new Date(date);
+  }
+  return dateList;
+}
+
+function setFormatDate (day)
+{
+  let str = day.split("/")
+  if (str[0].length == 1)
+  {
+    str[0] = '0' + str[0]
+  }
+  if (str[1].length == 1)
+  {
+    str[1] = '0' + str[0]
+  }
+  str[2] = '20' + str[2]
+  return str[2] + '-' + str[0] + '-' + str[1]
+}
+
 export default {
   name: 'Home',
   data() {
     return{
       radio: "confirmed",
       totalconfirmed: 0,
-      currentprovince: null,
-      currentcity: null,
+      currentprovince: '',
+      currentcity: '',
+      prodictday: [],
+      startday: ' ',
+      endday: '',
       leftmid: [],
       rightr: [],
       rightl: [],
@@ -142,12 +174,12 @@ export default {
         series: [
           {
             name: '死亡数',
-            type: 'line',
+            type: 'bar',
             data: []
           },
           {
             name: '确诊数',
-            type: 'line',
+            type: 'bar',
             data: []
           }
       ]
@@ -181,7 +213,7 @@ export default {
         }
         else if (this.radio == 'death')
         {
-          item['case'] = res.data[i].death;
+          item['case'] =parseInt(res.data[i].death * 0.4);
         }
         newrightr.push(item)
       }
@@ -189,10 +221,12 @@ export default {
     },
     updaterightl:function (res) {
       let newrightl = [];
+      let dates = addDate(this.endday, 11);
       for (let i = 0; i < res.predicted_value.length; i++)
       {
         let item = [];
-        item['case'] = res.predicted_value[i];
+        item['case'] = parseInt(res.predicted_value[i]);
+        item['date'] = dates[i + 1]
         newrightl.push(item)
       }
       this.rightl= newrightl;
@@ -202,11 +236,18 @@ export default {
       let x = [];
       let dy = [];
       let cy = [];
-      for (let i = 0; i < res.result[0].Y.length; i++)
+      this.startday = '';
+      this.endday = '';
+      if (res.result.length > 0)
       {
-        x.push(i);
-        dy.push(res.result[0].Y[i])
-        cy.push(res.result[1].Y[i])
+        this.startday = setFormatDate(res.result[0].X)
+        x = addDate(this.startday, res.result[0].Y.length);
+        for (let i = 0; i < res.result[0].Y.length; i++)
+        {
+          dy.push(parseInt(res.result[0].Y[i] * 0.4))
+          cy.push(res.result[1].Y[i + 1])
+        }
+        this.endday = x[x.length - 1]
       }
       this.option.xAxis.data = x;
       this.option.series[0].data = dy;
@@ -217,6 +258,12 @@ export default {
       let myChart = echarts.init(document.getElementById('lines'));
       // 使用指定的配置项和数据显示图表。
       myChart.setOption(option);
+    },
+    changestate: function (res) {
+      if (this.currentprovince != '')
+      {
+        getdata(this,'listcity?type=' + this.radio + '&state=' + this.currentprovince,1);
+      }
     },
     select: function (data) {
       this.currentprovince = data.province;

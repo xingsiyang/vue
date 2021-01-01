@@ -1,7 +1,7 @@
 <template>
   <el-container id="app">
     <el-header id="topInfo" height=50px style="padding: 10px">
-      <p>ZQJ-俊</p>
+      <p>疫情数据地图</p>
     </el-header>
     <!-- <div id="nav">
       <router-link to="/">Home</router-link> |
